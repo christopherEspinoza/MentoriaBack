@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using System.Reflection.PortableExecutable;
 
 namespace MentoriaAPI.Utils
 {
@@ -17,7 +18,7 @@ namespace MentoriaAPI.Utils
             IConfiguration configuration = builder.Build();
 
             // Leer valores de configuración
-            string defaultConnection = configuration.GetConnectionString("DefaultConnection");
+            string defaultConnection = configuration["ConnectionStrings"];
             string logLevel = configuration["Logging:LogLevel:Default"];
 
             connectionString = defaultConnection;
@@ -37,7 +38,7 @@ namespace MentoriaAPI.Utils
             }
         }
 
-        private void CloseConnection()
+        public void CloseConnection()
         {
             try
             {
@@ -53,7 +54,7 @@ namespace MentoriaAPI.Utils
             }
         }
 
-        public void ExecuteStoreProcedure(string nombreProcedimiento, params MySqlParameter[] parametros)
+        public string ExecuteSimpleStoreProcedure(string nombreProcedimiento, params MySqlParameter[]? parametros)
         {
             try
             {
@@ -61,17 +62,43 @@ namespace MentoriaAPI.Utils
                 using (MySqlCommand cmd = new MySqlCommand(nombreProcedimiento, connection))
                 {
                     cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                    cmd.Parameters.AddRange(parametros);
+                    if (parametros != null)
+                    {
+                        cmd.Parameters.AddRange(parametros);
+                    }
                     cmd.ExecuteNonQuery();
-                    Console.WriteLine("Procedimiento almacenado ejecutado.");
                 }
                 CloseConnection();
+                return "Procedimiento almacenado ejecutado.";
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Error al ejecutar el procedimiento almacenado: " + ex.Message);
+                CloseConnection();
+                return "Error al ejecutar el procedimiento almacenado: " + ex.Message;
+            }
+        }
+
+        public MySqlDataReader ExecuteStoreProcedure(string nombreProcedimiento, params MySqlParameter[]? parametros)
+        {
+            MySqlDataReader reader = null;
+            try
+            {
+                OpenConnection();
+                using (MySqlCommand cmd = new MySqlCommand(nombreProcedimiento, connection))
+                {
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    if (parametros != null)
+                    {
+                        cmd.Parameters.AddRange(parametros);
+                    }
+                    reader = cmd.ExecuteReader();
+                }
+            }
+            catch (MySqlException ex)
+            {
                 CloseConnection();
             }
+            return reader;
         }
     }
 }
