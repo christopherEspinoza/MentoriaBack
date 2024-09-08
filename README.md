@@ -7,10 +7,10 @@ Tener instalado net core 6
 Tener instalado MySQL (cualquier version)
 
 #  Consideraciones
-1.- installar git \n
-2.- abrir powershell (en su carpeta preferida)
-3.- ejecutar el comando git clone url_proveida_por_Diego
-4.- ingresar a la carpeta que se clone con el comando cd ./MentoriaBack
+1.- installar git  
+2.- abrir powershell (en su carpeta preferida)  
+3.- ejecutar el comando git clone url_proveida_por_Diego  
+4.- ingresar a la carpeta que se clone con el comando cd ./MentoriaBack  
 5.- ejecutar el proyecto presionando F5
 
 # Notas
